@@ -1,0 +1,29 @@
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Ambientes virtuais
+.venv/
+venv/
+env/
+
+# Segredos e variáveis locais
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Dados locais e temporários
+data/raw/
+data/processed/
+data/temp/
+*.log
+
+# Sistema operacional e editor
+.DS_Store
+Thumbs.db
+.vscode/
