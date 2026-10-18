@@ -1,2 +1,4 @@
-
-# Dependências serão adicionadas conforme cada módulo for desenvolvido.
+paho-mqtt>=2.1,<3
+duckdb>=1.4,<2
+fastapi>=0.115,<1
+uvicorn>=0.30,<1
