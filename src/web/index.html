@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Smart City — Observatório urbano</title>
+<style>
+:root{font-family:Segoe UI,Arial,sans-serif;color:#163331;background:#f2f5f1;font-synthesis:none}*{box-sizing:border-box}body{margin:0}.top{background:#123d37;color:#fff;padding:20px max(24px,calc((100vw - 1200px)/2));display:flex;justify-content:space-between;align-items:center;gap:20px}.brand{font-weight:700;letter-spacing:.1em;font-size:15px}.badge{font-size:12px;background:#ffffff15;border:1px solid #ffffff40;border-radius:30px;padding:7px 12px}main{max-width:1248px;margin:auto;padding:38px 24px}h1{font-size:clamp(28px,4vw,42px);margin:6px 0 10px;letter-spacing:-.04em}p{color:#526b65;line-height:1.5}.eyebrow{font-size:12px;letter-spacing:.13em;color:#47766b;text-transform:uppercase;font-weight:700}.intro{display:flex;justify-content:space-between;align-items:end;gap:22px;flex-wrap:wrap}.controls{display:flex;align-items:end;gap:12px;flex-wrap:wrap}label{display:grid;gap:7px;font-size:13px;font-weight:600}select,button{font:inherit;padding:11px 14px;border-radius:8px;border:1px solid #c5d3cb;background:white;color:#163331;min-height:44px}button{background:#176553;color:white;border:0;cursor:pointer;font-weight:600}button:disabled{opacity:.6;cursor:wait}button:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #cc8a28;outline-offset:3px}.status{min-height:24px;font-size:13px;margin:22px 0 16px}.status.error{color:#a42c24}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.card,.panel{background:#fff;border:1px solid #dae3da;border-radius:14px}.card{padding:22px}.card span{font-size:13px;color:#526b65}.value{font-size:32px;font-weight:650;margin-top:12px;letter-spacing:-.04em}.value small{font-size:15px;font-weight:400;letter-spacing:0}.meta{font-size:12px;color:#64786f;margin-top:10px}.panel{margin-top:22px;padding:24px}h2{font-size:18px;margin:0 0 6px}.sub{margin:0 0 20px;font-size:13px}.chart{width:100%;height:auto;display:block;max-height:340px}.legend{display:flex;gap:20px;flex-wrap:wrap;font-size:13px;margin:14px 0 0}.dot{width:10px;height:10px;display:inline-block;border-radius:50%;margin-right:7px}.table-wrap{overflow:auto;max-height:480px}table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:13px}th{text-align:left;color:#526b65;font-size:12px;background:#f7f9f6;position:sticky;top:0}td,th{padding:13px 12px;border-bottom:1px solid #e7ece6}footer{font-size:12px;color:#64786f;margin-top:24px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}a{color:#176553}.empty{padding:45px 10px;text-align:center;color:#64786f}@media(max-width:800px){.cards{grid-template-columns:repeat(2,1fr)}.panel{padding:16px}}@media(max-width:440px){.cards{grid-template-columns:1fr}.top{padding:18px}.badge{font-size:10px}main{padding:24px 16px}}
+</style>
+<style>
+.value[data-nivel="bom"]{color:#157347}.value[data-nivel="ameno"]{color:#946000}.value[data-nivel="ruim"]{color:#b42318}.sinal{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:650;margin-top:10px;padding:5px 9px;border-radius:20px;background:#edf1ed;color:#526b65}.sinal::before{content:'';width:8px;height:8px;border-radius:50%;background:currentColor}.sinal[data-nivel="bom"]{background:#e5f4eb;color:#157347}.sinal[data-nivel="ameno"]{background:#fff3cd;color:#946000}.sinal[data-nivel="ruim"]{background:#fdebea;color:#b42318}.faixas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.faixa{padding:18px;border:1px solid #dae3da;border-top:4px solid var(--cor);border-radius:10px;background:var(--fundo)}.faixa h3{margin:0 0 16px;font-size:16px;color:var(--cor)}.faixa dl{margin:0}.faixa dt{font-size:13px;font-weight:650;margin-top:14px}.faixa dd{margin:4px 0 0;font-size:13px;line-height:1.5;color:#526b65}.faixa.bom{--cor:#157347;--fundo:#f3faf5}.faixa.ameno{--cor:#946000;--fundo:#fffbef}.faixa.ruim{--cor:#b42318;--fundo:#fff6f5}@media(max-width:700px){.faixas{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="top"><div class="brand">◈ SMART CITY</div><div class="badge">DADOS SIMULADOS · AMBIENTE LOCAL</div></header>
+<main>
+<div class="intro"><div><div class="eyebrow">Observatório urbano / Visão geral</div><h1>A cidade em indicadores</h1><p>Compare as condições ambientais e a mobilidade dos pontos monitorados.</p></div><div class="controls"><label>Local monitorado<select id="sensor"><option value="">Todos os sensores</option></select></label><label>Período<select id="periodo"><option value="">Todo o histórico</option><option value="15">Últimos 15 minutos</option><option value="60">Última hora</option><option value="1440">Últimas 24 horas</option></select></label><button id="atualizar" type="button">Atualizar consulta</button></div></div>
+<label style="display:flex;align-items:center;gap:9px;margin-top:20px;font-size:13px"><input id="automatico" type="checkbox" style="width:18px;height:18px"> Atualizar consulta automaticamente a cada 10 segundos</label>
+<p class="sub" style="margin-top:8px">Para receber novas leituras, mantenha o simulador, o consumidor e o pipeline contínuo em execução.</p>
+<p id="status" class="status" role="status" aria-live="polite">Carregando indicadores…</p>
+<aside class="panel" style="margin:0 0 20px;padding:16px" aria-label="Atualidade dos dados"><div id="estado-dados" class="sinal" style="margin-top:0">Verificando dados…</div><p id="ultima-leitura" class="sub" style="margin:10px 0 0">Aguardando consulta</p><p class="meta">Referência: última leitura exportada do sensor selecionado, independentemente do período. Com todos os sensores, mostra a mais recente entre eles. Recente = até 60 segundos na última consulta; não confirma que todos os serviços estão ativos.</p></aside>
+<section class="cards" aria-label="Médias do período exibido">
+<div class="card"><span>Temperatura média</span><div class="value" id="temperatura">—</div><div class="meta">Média das leituras exibidas</div></div>
+<div class="card"><span>Umidade média</span><div class="value" id="umidade">—</div><div class="meta">Média das leituras exibidas</div></div>
+<div class="card"><span>Partículas PM2.5</span><div class="value" id="pm25">—</div><div class="meta">Concentração média simulada</div></div>
+<div class="card"><span>Velocidade média</span><div class="value" id="velocidade">—</div><div class="meta">Mobilidade nos pontos monitorados</div></div>
+</section>
+<section class="panel" aria-labelledby="titulo-faixas"><h2 id="titulo-faixas">Como interpretar as cores</h2><p class="sub">Faixas ilustrativas deste projeto, aplicadas às médias exibidas. Não representam limites oficiais de saúde ou de trânsito. Para velocidade, avaliam apenas a fluidez simulada, sem indicar segurança ou velocidade permitida.</p><div id="faixas" class="faixas"></div></section>
+<section class="panel"><h2>Temperatura ao longo do tempo</h2><p class="sub">Média por minuto e sensor · Horários em UTC</p><div id="grafico"></div><div id="legenda" class="legend"></div></section>
+<section class="panel"><h2>Leituras consolidadas</h2><p class="sub" id="contagem">Aguardando dados</p><div class="table-wrap"><table><thead><tr><th scope="col">Minuto (UTC)</th><th scope="col">Sensor</th><th scope="col">Leituras</th><th scope="col">Temp. °C</th><th scope="col">Umidade %</th><th scope="col">PM2.5 µg/m³</th><th scope="col">Veloc. km/h</th><th scope="col">Fluxo veículos/min</th></tr></thead><tbody id="tabela"></tbody></table></div></section>
+<footer><span>Fonte: última exportação Parquet. Atualize o pipeline para incluir novas leituras.</span><a href="/docs">Explorar a API ↗</a></footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const nomes={'URB-001':'Centro','URB-002':'Bairro residencial','URB-003':'Avenida principal'};
+const cores=['#176553','#b47518','#497db1','#9766a2'];
+const niveis={bom:'Bom',ameno:'Ameno / atenção',ruim:'Ruim'};
+// Critérios didáticos do projeto; os limites pertencem à faixa indicada na legenda.
+const criterios={
+ temperatura:{titulo:'Temperatura (°C)',classificar:v=>v>=18&&v<=26?'bom':v>=12&&v<=32?'ameno':'ruim',faixas:{bom:'18 a 26 °C (inclusive)',ameno:'12 a menos de 18 °C; acima de 26 até 32 °C',ruim:'Abaixo de 12 °C ou acima de 32 °C'}},
+ umidade:{titulo:'Umidade (%)',classificar:v=>v>=40&&v<=60?'bom':v>=30&&v<=70?'ameno':'ruim',faixas:{bom:'40 a 60% (inclusive)',ameno:'30 a menos de 40%; acima de 60 até 70%',ruim:'Abaixo de 30% ou acima de 70%'}},
+ pm25:{titulo:'PM2.5 (µg/m³)',classificar:v=>v<=15?'bom':v<=35?'ameno':'ruim',faixas:{bom:'Até 15 µg/m³',ameno:'Acima de 15 até 35 µg/m³',ruim:'Acima de 35 µg/m³'}},
+ velocidade:{titulo:'Velocidade / fluidez (km/h)',classificar:v=>v>=30&&v<=60?'bom':v>=15&&v<=70?'ameno':'ruim',faixas:{bom:'30 a 60 km/h (inclusive)',ameno:'15 a menos de 30 km/h; acima de 60 até 70 km/h',ruim:'Abaixo de 15 km/h ou acima de 70 km/h'}}
+};
+function montarFaixas(){
+ for(const [nivel,titulo]of Object.entries(niveis)){
+  const box=document.createElement('article');box.className='faixa '+nivel;
+  const h=document.createElement('h3');h.textContent=({bom:'Verde · ',ameno:'Amarelo · ',ruim:'Vermelho · '})[nivel]+titulo;box.append(h);
+  const dl=document.createElement('dl');for(const criterio of Object.values(criterios)){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=criterio.titulo;dd.textContent=criterio.faixas[nivel];dl.append(dt,dd)}box.append(dl);$('faixas').append(box);
+ }
+ for(const id of Object.keys(criterios)){const sinal=document.createElement('div');sinal.id=id+'-sinal';sinal.className='sinal';sinal.textContent='Sem dados';$(id).after(sinal)}
+}
+function sinalizar(id,valor){
+ const nivel=valor===null?'':criterios[id].classificar(valor);
+ $(id).dataset.nivel=nivel;$(id+'-sinal').dataset.nivel=nivel;$(id+'-sinal').textContent=nivel?niveis[nivel]:'Sem dados';
+}
+const numero=v=>v===null||v===undefined||!Number.isFinite(Number(v))?'—':Number(v).toLocaleString('pt-BR',{maximumFractionDigits:2});
+const horario=v=>String(v).replace('T',' ').replace(/(?:\.\d+)?(?:Z|\+00:00)$/,'');
+async function obter(url){const r=await fetch(url);if(!r.ok){let d;try{d=await r.json()}catch{}throw new Error(d?.detail||'Falha na consulta. Confira se a API está em execução.')}return r.json()}
+function celula(tr,texto){const td=document.createElement('td');td.textContent=texto;tr.append(td)}
+function desenhar(dados){
+ const box=$('grafico');box.replaceChildren();$('legenda').replaceChildren();
+ const validos=dados.filter(d=>d.temperatura_media_c!==null&&Number.isFinite(Number(d.temperatura_media_c)));
+ if(!validos.length){box.className='empty';box.textContent='Sem dados de temperatura para este filtro.';return}box.className='';
+ const ns='http://www.w3.org/2000/svg';const svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox','0 0 1000 290');svg.setAttribute('class','chart');svg.setAttribute('role','img');svg.setAttribute('aria-label','Temperatura média por minuto e sensor; os mesmos valores estão disponíveis na tabela abaixo.');
+ const tempos=[...new Set(validos.map(d=>d.minuto_utc))].sort();const vals=validos.map(d=>Number(d.temperatura_media_c));const lo=Math.floor(Math.min(...vals))-1,hi=Math.ceil(Math.max(...vals))+1;
+ const instante=t=>Date.parse(t.endsWith('Z')||/[+-]\d\d:\d\d$/.test(t)?t:t+'Z');
+ const inicio=instante(tempos[0]),fim=instante(tempos[tempos.length-1]);
+ const x=t=>fim===inicio?520:60+(instante(t)-inicio)/(fim-inicio)*900,y=v=>240-(v-lo)/(hi-lo)*210;
+ function el(tag,attrs,text){const n=document.createElementNS(ns,tag);for(const [k,v]of Object.entries(attrs))n.setAttribute(k,v);if(text!==undefined)n.textContent=text;svg.append(n);return n}
+ for(let i=0;i<5;i++){const v=lo+(hi-lo)*i/4;el('line',{x1:60,x2:960,y1:y(v),y2:y(v),stroke:'#e4ebe4'});el('text',{x:48,y:y(v)+4,'text-anchor':'end',fill:'#64786f','font-size':12},numero(v)+'°')}
+ const ids=[...new Set(validos.map(d=>d.sensor_id))].sort();ids.forEach((id,i)=>{const color=cores[i%cores.length];const pontos=validos.filter(d=>d.sensor_id===id).sort((a,b)=>a.minuto_utc.localeCompare(b.minuto_utc));el('polyline',{points:pontos.map(d=>`${x(d.minuto_utc)},${y(d.temperatura_media_c)}`).join(' '),fill:'none',stroke:color,'stroke-width':3});pontos.forEach(d=>el('circle',{cx:x(d.minuto_utc),cy:y(d.temperatura_media_c),r:4,fill:color}));const label=document.createElement('span'),dot=document.createElement('span');dot.className='dot';dot.style.backgroundColor=color;label.append(dot,document.createTextNode(id+' · '+(nomes[id]||'Sensor')));$('legenda').append(label)});
+ const indices=[...new Set([0,Math.floor((tempos.length-1)/2),tempos.length-1])];indices.forEach(i=>el('text',{x:x(tempos[i]),y:275,'text-anchor':'middle',fill:'#64786f','font-size':12},horario(tempos[i]).slice(5,16)));box.append(svg);
+}
+function mostrar(dados){
+ const campos=[['temperatura','temperatura_media_c','°C'],['umidade','umidade_media_pct','%'],['pm25','pm25_medio_ug_m3','µg/m³'],['velocidade','velocidade_media_kmh','km/h']];
+ campos.forEach(([id,campo,unidade])=>{const validos=dados.filter(d=>d[campo]!==null&&Number.isFinite(Number(d[campo]))&&d.leituras>0);const n=validos.reduce((s,d)=>s+d.leituras,0);const media=n?Math.round(validos.reduce((s,d)=>s+d[campo]*d.leituras,0)/n*100)/100:null;$(id).textContent=media!==null?numero(media)+' '+unidade:'—';sinalizar(id,media)});
+ $('tabela').replaceChildren();dados.forEach(d=>{const tr=document.createElement('tr');[horario(d.minuto_utc),d.sensor_id,numero(d.leituras),numero(d.temperatura_media_c),numero(d.umidade_media_pct),numero(d.pm25_medio_ug_m3),numero(d.velocidade_media_kmh),numero(d.fluxo_medio_veiculos_min)].forEach(v=>celula(tr,v));$('tabela').append(tr)});
+ const n=dados.reduce((s,d)=>s+d.leituras,0);$('contagem').textContent=`${numero(n)} leituras em ${dados.length} grupos de sensor/minuto · ${$('periodo').selectedOptions[0].textContent} · Até 1.000 grupos mais recentes · Médias aproximadas a partir dos grupos arredondados`;desenhar(dados);
+}
+let consultando=false;
+let temporizador=null;
+async function verificarAtualidade(){
+ const p=new URLSearchParams();if($('sensor').value)p.set('sensor_id',$('sensor').value);
+ try{
+  const r=await obter('/atualizacao?'+p);
+  const rotulos={recente:'Dados recentes',sem_atualizacao:'Dados sem atualização',sem_dados:'Sem dados',horario_futuro:'Horário da leitura no futuro'};
+  $('estado-dados').textContent=rotulos[r.estado]||'Estado desconhecido';
+  $('estado-dados').dataset.nivel=r.estado==='recente'?'bom':r.estado==='sem_atualizacao'||r.estado==='horario_futuro'?'ameno':'';
+  if(r.ultima_leitura){const data=new Date(r.ultima_leitura).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'});const idade=r.idade_segundos;const atraso=idade===null?'Verifique o relógio do sensor.':idade<60?`${idade}s de idade na consulta.`:`${Math.floor(idade/60)}min de idade na consulta.`;$('ultima-leitura').textContent=`Última leitura: ${data} (São Paulo). ${atraso}`}
+  else $('ultima-leitura').textContent='Nenhuma leitura exportada para este sensor.';
+ }catch{$('estado-dados').textContent='Atualidade indisponível';$('estado-dados').dataset.nivel='';$('ultima-leitura').textContent='Não foi possível verificar a última leitura. Confira se a API foi reiniciada.'}
+}
+function agendar(){
+ clearTimeout(temporizador);temporizador=null;
+ if($('automatico').checked)temporizador=setTimeout(atualizar,10000);
+}
+async function atualizar(){
+ if(consultando)return;
+ consultando=true;clearTimeout(temporizador);
+ $('atualizar').disabled=true;$('sensor').disabled=true;$('periodo').disabled=true;$('status').className='status';$('status').textContent='Consultando última exportação…';
+ try{const atual=$('sensor').value;const sensores=await obter('/sensores');$('sensor').replaceChildren(new Option('Todos os sensores',''));sensores.forEach(s=>$('sensor').append(new Option(s.sensor_id+' · '+(nomes[s.sensor_id]||'Sensor'),s.sensor_id)));$('sensor').value=[...$('sensor').options].some(o=>o.value===atual)?atual:'';const parametros=new URLSearchParams({limite:'1000'});if($('sensor').value)parametros.set('sensor_id',$('sensor').value);if($('periodo').value)parametros.set('minutos',$('periodo').value);const resposta=await obter('/indicadores?'+parametros);mostrar(resposta.indicadores);$('status').textContent=resposta.indicadores.length?'Consulta atualizada às '+new Date().toLocaleTimeString('pt-BR')+' · Dados simulados':'Nenhuma leitura neste período. Gere novos dados e atualize o pipeline, ou escolha Todo o histórico.'}
+ catch(e){mostrar([]);$('status').className='status error';$('status').textContent=e.message}
+ finally{await verificarAtualidade();consultando=false;$('atualizar').disabled=false;$('sensor').disabled=false;$('periodo').disabled=false;agendar()}
+}
+$('atualizar').addEventListener('click',atualizar);$('sensor').addEventListener('change',atualizar);$('periodo').addEventListener('change',atualizar);$('automatico').addEventListener('change',()=>{$('automatico').checked?atualizar():agendar()});montarFaixas();atualizar();
+</script>
+</body></html>

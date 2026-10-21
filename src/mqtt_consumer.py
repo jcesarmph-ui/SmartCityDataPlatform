@@ -3,6 +3,10 @@ from pathlib import Path
 
 import paho.mqtt.client as mqtt
 
+if __package__:
+    from .validacao_dados import validar_leitura
+else:
+    from validacao_dados import validar_leitura
 
 MQTT_HOST = "localhost"
 MQTT_PORT = 1883
@@ -21,7 +25,7 @@ def on_connect(client, userdata, flags, reason_code, properties):
 
 def on_message(client, userdata, msg):
     try:
-        dados = json.loads(msg.payload.decode("utf-8"))
+        dados = validar_leitura(json.loads(msg.payload.decode("utf-8")))
 
         print("\n--- NOVA LEITURA URBANA ---")
         print(f"Sensor: {dados['sensor_id']}")
@@ -34,11 +38,11 @@ def on_message(client, userdata, msg):
 
         ARQUIVO_DADOS.parent.mkdir(parents=True, exist_ok=True)
         with ARQUIVO_DADOS.open("a", encoding="utf-8") as arquivo:
-            arquivo.write(json.dumps(dados, ensure_ascii=False) + "\n")
+            arquivo.write(json.dumps(dados, ensure_ascii=False, allow_nan=False) + "\n")
         print(f"Leitura salva em: {ARQUIVO_DADOS}")
 
-    except (UnicodeDecodeError, json.JSONDecodeError, KeyError) as erro:
-        print(f"Mensagem inválida: {erro}")
+    except (UnicodeDecodeError, ValueError) as erro:
+        print(f"[RECUSADA] Mensagem inválida: {erro}")
     except OSError as erro:
         print(f"Falha ao salvar leitura: {erro}")
 
