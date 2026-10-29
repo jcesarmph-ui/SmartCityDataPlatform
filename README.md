@@ -32,7 +32,6 @@
   <a href="#-visão-geral">Visão Geral</a> •
   <a href="#-mapa-do-projeto">Mapa</a> •
   <a href="#-fluxo-de-dados">Fluxo de dados</a> •
-  <a href="#-como-executar">Como executar</a> •
   <a href="#-validação-das-leituras">Validação</a> •
   <a href="#-pipeline-analítico">Pipeline</a> •
   <a href="#-api-local">API</a> •
@@ -217,75 +216,6 @@ sequenceDiagram
 
 </details>
 
-## 🚀 Como executar
-
-Requisitos: **Python 3.10 ou superior** e **Docker Desktop em execução**. Comandos para **PowerShell**, na
-pasta do projeto.
-
-**1. Preparar e iniciar**
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-docker compose up -d
-```
-
-**2. Em um terminal, iniciar o consumidor**
-
-```powershell
-.\.venv\Scripts\python.exe src\mqtt_consumer.py
-```
-
-**3. Em outro terminal, iniciar o simulador**
-
-```powershell
-.\.venv\Scripts\python.exe simulators\sensor_urbano.py
-```
-
-O simulador publica leituras dos três pontos (`URB-001`, `URB-002`, `URB-003`) e o consumidor grava as
-leituras em `data/raw/leituras_urbanas.jsonl`.
-
-**4. Executar os testes de validação**
-
-```powershell
-.\.venv\Scripts\python.exe -m unittest discover -s tests -v
-```
-
-<details>
-<summary><b>🧰 Scripts auxiliares</b></summary>
-
-| Script | O que faz |
-|---|---|
-| `src\main.py` | Exibe uma verificação simples do ambiente (status, horário UTC). |
-| `src\analisar_dados.py` | Calcula médias de todo o histórico JSONL, ignorando linhas inválidas. |
-| `src\consultar_sql.py` | Consulta o JSONL com SQL (DuckDB): resumo por sensor e leituras mais recentes. |
-| `src\exportar_parquet.py` | Etapa 1 do pipeline, executável isoladamente. |
-| `src\indicadores_por_minuto.py` | Etapa 2 do pipeline, executável isoladamente. |
-
-Todos são executados da mesma forma, por exemplo:
-`.\.venv\Scripts\python.exe src\consultar_sql.py`
-
-</details>
-
-> [!WARNING]
-> **Para encerrar o dia:** pressione `Ctrl+C` nos terminais do simulador, do consumidor e da API.
-> Depois execute `docker compose down`. Os arquivos de dados permanecem no computador.
-> Dados gerados, `.env` e `.venv` são ignorados pelo Git.
-
-<details>
-<summary><b>🐳 Configuração do broker MQTT</b></summary>
-
-O [`docker-compose.yml`](docker-compose.yml) sobe o contêiner `smartcity-mosquitto` (imagem
-`eclipse-mosquitto:2`), publicado apenas em `127.0.0.1:1883`. A configuração local
-(`docker/mosquitto/config/mosquitto.conf`) usa listener `1883`, acesso anônimo, sem persistência e log
-na saída padrão — adequada somente para desenvolvimento local.
-
-O arquivo [`.env.example`](.env.example) traz o modelo das variáveis locais (`APP_NAME`, `APP_ENV`,
-`MQTT_HOST`, `MQTT_PORT`); endereços e credenciais dos bancos serão definidos nas próximas etapas. Os
-scripts atuais usam `localhost:1883`.
-
-</details>
-
 ## 🔒 Validação das leituras
 
 Antes de salvar, o consumidor verifica cada mensagem. As regras ficam em
@@ -311,11 +241,7 @@ Antes de salvar, o consumidor verifica cada mensagem. As regras ficam em
 
 ## 📦 Pipeline analítico
 
-Com leituras já salvas em `data/raw/leituras_urbanas.jsonl`:
-
-```powershell
-.\.venv\Scripts\python.exe src\pipeline.py
-```
+A partir das leituras salvas em `data/raw/leituras_urbanas.jsonl`:
 
 ```mermaid
 flowchart TD
@@ -329,19 +255,12 @@ flowchart TD
 
 - Cada execução atualiza a **cópia Parquet completa**; o JSONL original é preservado.
 - Se uma etapa falhar, o fluxo para.
-- Sem `--intervalo`, o comando executa **uma vez**. Ele **não** inicia a coleta MQTT.
+- Pode rodar uma única vez ou em modo contínuo; ele **não** inicia a coleta MQTT.
 
 ### Atualização contínua
 
-Para atualizar o Parquet continuamente, em vez da execução única:
-
-```powershell
-.\.venv\Scripts\python.exe src\pipeline.py --intervalo 10
-```
-
-O comando executa um ciclo completo, espera dez segundos e repete, **sem sobrepor ciclos** (o intervalo
-mínimo aceito é de 3 segundos). Em caso de erro, interrompe e exibe a falha; `Ctrl+C` encerra o processo.
-Simulador, consumidor e API devem continuar ativos em terminais separados.
+No modo contínuo, o pipeline executa um ciclo completo, espera o intervalo definido e repete, **sem sobrepor ciclos** (o intervalo
+mínimo aceito é de 3 segundos). Em caso de erro, interrompe e exibe a falha.
 
 > [!NOTE]
 > Há atraso de coleta, processamento e consulta: a atualização é **periódica, não instantânea**.
@@ -361,13 +280,7 @@ Simulador, consumidor e API devem continuar ativos em terminais separados.
 
 ## 🌐 API local
 
-Depois de executar o pipeline, inicie a API na pasta do projeto:
-
-```powershell
-.\.venv\Scripts\python.exe -m uvicorn src.api:app --host 127.0.0.1 --port 8000
-```
-
-Abra **http://127.0.0.1:8000/docs** para testar as rotas. Para encerrar a API, pressione `Ctrl+C` no terminal.
+API REST em **FastAPI**, com documentação interativa gerada automaticamente.
 
 | Método | Rota | Parâmetros | Retorno |
 |---|---|---|---|
@@ -378,12 +291,12 @@ Abra **http://127.0.0.1:8000/docs** para testar as rotas. Para encerrar a API, p
 | `GET` | `/dashboard` | — | Página do dashboard local |
 
 - Horários em **UTC**.
-- As consultas leem a **última exportação Parquet**; execute o pipeline novamente para incluir novas leituras.
-- Sem o arquivo Parquet, a API responde `503` pedindo para executar o pipeline.
+- As consultas leem a **última exportação Parquet**.
+- Sem o arquivo Parquet, a API responde `503`.
 
 ## 📊 Dashboard local
 
-Com a API em execução, abra **http://127.0.0.1:8000/dashboard**.
+Página web servida pela própria API.
 
 | Recurso | Descrição |
 |---|---|
@@ -422,8 +335,7 @@ Esse indicador mede a atualidade do **Parquet**, não confirma a saúde dos serv
 
 > [!TIP]
 > A opção **Atualizar consulta automaticamente a cada 10 segundos** repete as consultas enquanto a página
-> estiver aberta. Ela começa **desligada** e pode ser desmarcada a qualquer momento. Combine-a com o
-> pipeline em modo contínuo (`--intervalo`).
+> estiver aberta. Ela começa **desligada** e pode ser desmarcada a qualquer momento.
 
 ### 🎨 Como interpretar as cores
 
@@ -441,21 +353,6 @@ dos cartões detalha os intervalos. Sem dados, os cartões permanecem neutros.
 > As faixas são **ilustrativas do projeto**, sem equivalência com limites oficiais de saúde ou trânsito.
 > Na velocidade, representam apenas fluidez simulada. Os critérios ficam em
 > [`src/web/index.html`](src/web/index.html), no objeto `criterios`.
-
-### ▶️ Gerar leituras continuamente
-
-```mermaid
-flowchart LR
-    T1["Terminal 1<br/>Mosquitto em Docker"] --> T2["Terminal 2<br/>Consumidor"]
-    T3["Terminal 3<br/>Simulador"] --> T1
-    T2 --> T4["Terminal 4<br/>pipeline --intervalo 10"]
-    T4 --> T5["Terminal 5<br/>API e dashboard"]
-```
-
-1. Mantenha Mosquitto, consumidor e simulador ativos. Cada ciclo do simulador envia uma leitura de cada
-   sensor e aguarda três segundos.
-2. Em um terminal separado, execute o pipeline (uma vez ou com `--intervalo`) para atualizar o Parquet.
-3. No dashboard, clique em **Atualizar consulta** — ou marque a consulta automática.
 
 ## 🧰 Tecnologias
 
